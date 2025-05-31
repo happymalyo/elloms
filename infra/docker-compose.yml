@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ../apps/frontend
+      dockerfile: ../../infra/Dockerfiles/frontend.Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend-ai
+      - backend-automation
+
+  backend-ai:
+    build:
+      context: ../apps/backend-ai
+      dockerfile: ../../infra/Dockerfiles/backend-ai.Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+
+  backend-automation:
+    build:
+      context: ../apps/backend-automation
+      dockerfile: ../../infra/Dockerfiles/backend-automation.Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002 
