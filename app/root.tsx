@@ -8,6 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { Header } from "./components/layouts/header";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -33,7 +34,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <div className="w-full p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+          <div className="max-w-6xl mx-auto">
+            <Header />
+            {children}
+          </div>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
