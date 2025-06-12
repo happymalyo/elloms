@@ -9,23 +9,22 @@ const axiosInstance = axios.create({
 });
 
 // Request interceptor
-if (typeof window !== "undefined") {
-  axiosInstance.interceptors.request.use(
-    (config) => {
-      // const token = typeof window !== 'undefined'
-      //   ? window.localStorage.getItem('token')
-      //   : null;
-      const token = process.env.API_TOKEN || null;
 
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // const token = typeof window !== 'undefined'
+    //   ? window.localStorage.getItem('token')
+    //   : null;
+    const token = process.env.API_TOKEN || null;
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  );
-}
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;
