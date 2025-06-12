@@ -1,9 +1,9 @@
-import { ApiService } from '../api';
-import type { Jobs } from './types';
+import { ApiService } from "../api";
+import type { Jobs } from "./types";
 
 export class JobService extends ApiService {
   constructor() {
-    super('/crew/jobs/');
+    super("/crew/jobs/");
   }
 
   async getAllJobs(params?: Record<string, any>) {

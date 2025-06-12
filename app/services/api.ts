@@ -1,4 +1,4 @@
-import axiosInstance from '../lib/axios';
+import axiosInstance from "../lib/axios";
 
 export class ApiService {
   protected endpoint: string;
@@ -8,8 +8,13 @@ export class ApiService {
   }
 
   async getAll<T>(params?: Record<string, any>) {
-    const response = await axiosInstance.get<T[]>(this.endpoint, { params });
-    return response.data;
+    try {
+      const response = await axiosInstance.get<T[]>(this.endpoint, { params });
+      return response.data;
+    } catch (error) {
+      console.log("Errrror", error);
+      return {};
+    }
   }
 
   async getById<T>(id: string | number) {
