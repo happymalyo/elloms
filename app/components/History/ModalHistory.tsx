@@ -14,14 +14,15 @@ export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
 
         <div className="text-sm text-gray-400 uppercase mb-1">All requests</div>
         <div className="overflow-y-auto space-y-2">
-          {jobs?.map((job, index) => (
-            <div
-              key={index}
-              className="hover:bg-gray-100 rounded-md p-2 cursor-pointer text-sm"
-            >
-              {job.topic}
-            </div>
-          ))}
+          {jobs.length &&
+            jobs?.map((job, index) => (
+              <div
+                key={index}
+                className="hover:bg-gray-100 rounded-md p-2 cursor-pointer text-sm"
+              >
+                {job.topic}
+              </div>
+            ))}
         </div>
       </aside>
 

@@ -12,7 +12,7 @@ export class ApiService {
       const response = await axiosInstance.get<T[]>(this.endpoint, { params });
       return response.data;
     } catch (error) {
-      console.log("Errrror", error);
+      console.log("Error", error);
       return {};
     }
   }
