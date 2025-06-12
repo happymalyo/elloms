@@ -1,4 +1,6 @@
-export const ModalHistory = () => {
+import type { Jobs } from "~/services/jobsService/types";
+
+export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
   return (
     <div className="flex h-screen p-6 bg-white rounded-lg shadow-lg border border-gray-100">
       {/* Sidebar */}
@@ -10,42 +12,14 @@ export const ModalHistory = () => {
           className="bg-gray-100 p-2 rounded-md border border-gray-50 focus:outline-none text-sm font-medium text-gray-700  mb-4"
         />
 
-        {/* Create new chat button */}
-        <div className="text-sm text-gray-400 mb-1">Actions</div>
-        <button className="bg-gray-100 text-sm cursor-pointer font-medium text-gray-700 rounded-md px-3 py-2 mb-4 text-left">
-          Créer un nouveau chat
-        </button>
-
-        {/* Section titles */}
-        <div className="text-sm text-gray-400 uppercase mb-1">Aujourd'hui</div>
-        <div className="space-y-1 mb-4">
-          <div className="flex justify-between items-center bg-gray-100 p-2 rounded-md cursor-pointer">
-            <span>Enhancing CrewAI with User Inputs</span>
-            <span className="bg-gray-300 text-xs px-2 py-0.5 rounded">
-              Actuel
-            </span>
-          </div>
-        </div>
-
-        <div className="text-sm text-gray-400 uppercase mb-1">Cette année</div>
+        <div className="text-sm text-gray-400 uppercase mb-1">All requests</div>
         <div className="overflow-y-auto space-y-2">
-          {[
-            "Candidature Développeur React/Node",
-            "Merging Files for Generic Component",
-            "Reusable MiniDialog Component in React",
-            "Optimizing API Calls with React Query",
-            "Adding Optional Condition to React Query Hook",
-            "React Component for DeliveryHeader",
-            "Debugging React Select Event Handler",
-            "React-PDF Delivery Note Template",
-            "Extracting Delivery Note Items for State",
-            "ESLint Setup in VS Code for React Hooks",
-          ].map((title, index) => (
+          {jobs?.map((job, index) => (
             <div
               key={index}
               className="hover:bg-gray-100 rounded-md p-2 cursor-pointer text-sm"
             >
-              {title}
+              {job.topic}
             </div>
           ))}
         </div>

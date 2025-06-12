@@ -10,6 +10,7 @@ import {
 import type { Route } from "./+types/root";
 import { Header } from "./components/layouts/header";
 import "./app.css";
+import { ReactQueryProvider } from "./lib/react-query";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -34,12 +35,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <ReactQueryProvider>
         <div className="w-full p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
           <div className="max-w-6xl mx-auto">
             <Header />
             {children}
           </div>
         </div>
+        </ReactQueryProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
