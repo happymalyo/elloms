@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useLoaderData, type LoaderFunctionArgs } from "react-router-dom";
+import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { ModalHistory } from "~/components/History/ModalHistory";
 import { JobService } from "~/services/jobsService/job.service";
 
