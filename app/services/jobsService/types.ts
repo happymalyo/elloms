@@ -20,7 +20,17 @@ export interface Jobs {
     platform: string;
   }
 
+  export interface UpdateJobResponse {
+    job_id: string;
+    status: string;
+    message: string;
+  }
+
   export type CrewJobResult = Jobs[];
   export type CreateJobResponse = Pick<Jobs, "job_id" | "status"> & {
     message: string;
   };
+
+  export type UpdateJobRequest = {
+    text: string;
+  }

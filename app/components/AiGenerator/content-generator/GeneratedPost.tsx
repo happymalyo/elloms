@@ -13,9 +13,11 @@ interface GeneratedPostProps {
     handleSaveEdit: () => void;
     handleCancelEdit: () => void;
     handleEditPost: () => void;
+    editError: string;
+    isUpdating: boolean;
 }
 
-export const GeneratedPost = ({ generatedPost, relativeTime, isEditing, editedPost, setEditedPost, handleSaveEdit, handleCancelEdit, handleEditPost }: GeneratedPostProps) => {
+export const GeneratedPost = ({ generatedPost, relativeTime, isEditing, editedPost, setEditedPost, handleSaveEdit, handleCancelEdit, handleEditPost, editError, isUpdating }: GeneratedPostProps) => {
 
     const [copyFeedback, setCopyFeedback] = useState<string>("");
     const handleCopyPost = () => {
@@ -49,6 +51,7 @@ export const GeneratedPost = ({ generatedPost, relativeTime, isEditing, editedPo
                                 className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 flex items-center space-x-1"
                                 onClick={handleSaveEdit}
                                 aria-label="Save edited post"
+                                disabled={isUpdating}
                             >
                                 <FaSave className="h-4 w-4" />
                                 <span>Save</span>
@@ -63,11 +66,11 @@ export const GeneratedPost = ({ generatedPost, relativeTime, isEditing, editedPo
                             </button>
                         </div>
                     </div>
-                ) : (<p className="text-gray-700 leading-relaxed">
+                ) : (
                     <div className="prose max-w-none whitespace-pre-wrap">
-                        <ReactMarkdown>{generatedPost}</ReactMarkdown>
+                        <p className="text-gray-700 leading-relaxed"><ReactMarkdown>{generatedPost}</ReactMarkdown></p>
                     </div>
-                </p>)
+                )
                 }
 
             </div>
@@ -88,6 +91,11 @@ export const GeneratedPost = ({ generatedPost, relativeTime, isEditing, editedPo
                     </button>
                 </div>
             </div>
+            {editError && (
+                <div className="text-red-600 bg-red-50 p-4 rounded-md">
+                    <p>{editError}</p>
+                </div>
+            )}
         </div>
     )
 }

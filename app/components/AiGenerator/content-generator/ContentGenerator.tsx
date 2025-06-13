@@ -1,9 +1,9 @@
 import { SparklesIcon } from "@heroicons/react/24/outline";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { MdEditNote } from "react-icons/md";
 import { JobService } from "~/services/jobsService/job.service";
-import type { CreateJobRequest, Jobs } from "~/services/jobsService/types";
+import type { CreateJobRequest, CreateJobResponse, Jobs, UpdateJobRequest } from "~/services/jobsService/types";
 import { formatDistanceToNow } from "date-fns";
 import { GeneratedPost } from "./GeneratedPost";
 
@@ -20,9 +20,11 @@ export const ContentGenerator = () => {
     const [editedPost, setEditedPost] = useState<string>("");
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
+    const [editError, setEditError] = useState<string>("");
     const [generatedAt, setGeneratedAt] = useState<Date | null>(null);
     const queryClient = useQueryClient();
     const [job, setJob] = useState<CreateJobRequest>(INITIAL_JOB);
+    const [currentJobId, setCurrentJobId] = useState<string>("");
 
     // Relative time display using date-fns
     const [relativeTime, setRelativeTime] = useState<string>("");
@@ -37,6 +39,10 @@ export const ContentGenerator = () => {
             return () => clearInterval(interval);
         }
     }, [generatedAt]);
+
+    const refreshJobs = async () => {
+        queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    }
 
     // Poll job status
     const pollJobStatus = async (jobId: string) => {
@@ -58,7 +64,10 @@ export const ContentGenerator = () => {
                         setGeneratedPost(parsedResult.result);
                         setEditedPost(parsedResult.result);
                         setGeneratedAt(new Date());
-                        queryClient.invalidateQueries({ queryKey: ["jobs"] });
+                        await queryClient.invalidateQueries({
+                            queryKey: ["jobs"],
+                            refetchType: 'active'
+                        });
                     } else {
                         setError(parsedResult.message || "Failed to generate content");
                     }
@@ -73,6 +82,20 @@ export const ContentGenerator = () => {
         }, 5000);
     };
 
+    // Generate content
+  const createJobMutation = useMutation({
+    mutationFn: (data: CreateJobRequest) => jobService.createJob(data),
+    onSuccess: (response: CreateJobResponse) => {
+      setJobStatus(response.status);
+      setCurrentJobId(response.job_id);
+      pollJobStatus(response.job_id);
+    },
+    onError: (err: any) => {
+      setError(err.message || "Failed to start content generation");
+      setJobStatus("");
+    },
+  });
+
     const handleGenerateContent = async () => {
         if (!job.topic || !job.platform || !job.additional_context) {
             setError("Please fill in all fields: Topic, Platform, and Tone");
@@ -86,24 +109,38 @@ export const ContentGenerator = () => {
             setEditedPost("");
             setIsEditing(false);
             setGeneratedAt(null);
-            const response = await jobService.createJob(job);
-            setJobStatus(response.status);
-            pollJobStatus(response.job_id);
+            createJobMutation.mutate(job);
         } catch (err: any) {
             setError(err.message || "Failed to start content generation");
             setJobStatus("");
         }
     };
 
-
-
     const handleEditPost = () => {
         setIsEditing(true);
     };
 
+    const mutation = useMutation({
+        mutationFn: (data: UpdateJobRequest) => jobService.updateJob(currentJobId, data),
+        onSuccess: () => {
+            refreshJobs();
+            console.log("Job updated");
+        },
+    });
+
+    const { mutate: updateJob, isPending: isUpdating } = mutation;
+
     const handleSaveEdit = () => {
-        setGeneratedPost(editedPost);
-        setIsEditing(false);
+        try {
+            updateJob({ text: editedPost });
+            setGeneratedPost(editedPost);
+            setIsEditing(false);
+        } catch (error) {
+            setEditError("Failed to save edited post");
+        } finally {
+            refreshJobs();
+        }
+
     };
 
     const handleCancelEdit = () => {
@@ -201,7 +238,6 @@ export const ContentGenerator = () => {
 
                 {error && (
                     <div className="text-red-600 bg-red-50 p-4 rounded-md">
-                        <p className="font-semibold">Error:</p>
                         <p>{error}</p>
                     </div>
                 )}
@@ -217,6 +253,8 @@ export const ContentGenerator = () => {
                     handleSaveEdit={handleSaveEdit}
                     handleCancelEdit={handleCancelEdit}
                     handleEditPost={handleEditPost}
+                    editError={editError}
+                    isUpdating={isUpdating}
                 />
             )}</>
     );

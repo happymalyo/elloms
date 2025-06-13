@@ -2,12 +2,13 @@ import { MdFavoriteBorder } from "react-icons/md";
 import { BsChatLeft } from "react-icons/bs";
 import { CiShare2 } from "react-icons/ci";
 import { FaFacebook, FaLinkedin } from "react-icons/fa";
+import { IoMdAnalytics } from "react-icons/io";
 
 export const RecentPost = () => {
     return (
         <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
             <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-                <span className="material-symbols-outlined text-indigo-500">analytics</span>
+                <IoMdAnalytics className="h-5 w-5 text-indigo-500" />
                 <span>Recent Posts Performance</span>
             </h3>
 

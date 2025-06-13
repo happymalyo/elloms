@@ -1,23 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Jobs } from "~/services/jobsService/types";
 import ReactMarkdown from 'react-markdown';
 
 export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
   const [selectedJob, setSelectedJob] = useState<Jobs | null>(null);
-  
-  useEffect(() => {
-    console.log("Selected job changed:", selectedJob);
-  }, [selectedJob]);
 
-  const handleSelectJob = (job: Jobs) => {
+
+  const handleSelectJob = useCallback((job: Jobs) => () => {
     setSelectedJob(job);
-  };
+  }, []);
+
+  console.log("jobs", jobs);
 
   const parseResult = (result: string | object) => {
     try {
       // If result is already an object, use it directly
       let parsed = typeof result === 'string' ? JSON.parse(result) : result;
-      
+
       // Handle error case
       if (parsed.status === 'error') {
         return (
@@ -27,15 +26,15 @@ export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
           </div>
         );
       }
-      
+
       // Handle success case
       if (parsed.status === 'success') {
         return parsed.result || parsed.message || "Operation completed successfully";
       }
-      
+
       // Fallback for other cases
       return parsed.message || parsed.result || JSON.stringify(parsed);
-      
+
     } catch (error) {
       // If parsing fails, return the original string or a default message
       return typeof result === 'string' ? result : "Could not parse response";
@@ -62,29 +61,27 @@ export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
 
         <div className="text-sm text-gray-400 uppercase mb-1">All requests</div>
         <div className="overflow-y-auto space-y-2">
-  {jobs?.length > 0 ? (
-    jobs.map((job, index) => (
-      <div
-        key={index}
-        className={`rounded-md p-2 cursor-pointer text-sm ${
-          job.status === 'error' ? 'text-red-500' : 'text-gray-700'
-        } ${
-          selectedJob?.job_id === job.job_id 
-            ? 'bg-gray-100' 
-            : 'hover:bg-gray-100'
-        }`}
-        onClick={() => setSelectedJob(job)}
-      >
-        {job.topic}
-        {job.status === 'error' && (
-          <span className="ml-2 text-xs text-red-400">(Erreur)</span>
-        )}
-      </div>
-    ))
-  ) : (
-    <div className="text-sm text-gray-500">No jobs available</div>
-  )}
-</div>
+          {jobs?.length > 0 ? (
+            jobs.map((job, index) => (
+              <div
+                key={index}
+                className={`rounded-md p-2 cursor-pointer text-sm ${job.status === 'error' ? 'text-red-500' : 'text-gray-700'
+                  } ${selectedJob?.job_id === job.job_id
+                    ? 'bg-gray-100'
+                    : 'hover:bg-gray-100'
+                  }`}
+                onClick={handleSelectJob(job)}
+              >
+                {job.topic}
+                {job.status === 'error' && (
+                  <span className="ml-2 text-xs text-red-400">(Erreur)</span>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="text-sm text-gray-500">No jobs available</div>
+          )}
+        </div>
       </aside>
 
       {/* Main content */}
@@ -98,7 +95,7 @@ export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
               )}
             </h1>
             {renderContent(parseResult(selectedJob.result || ""))}
-          </div>    
+          </div>
         ) : (
           <div className="flex-1 flex items-center justify-center h-full text-gray-500">
             Sélectionnez une conversation à prévisualiser
