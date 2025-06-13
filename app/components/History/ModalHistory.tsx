@@ -1,24 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Jobs } from "~/services/jobsService/types";
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 
 export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
   const [selectedJob, setSelectedJob] = useState<Jobs | null>(null);
 
-
-  const handleSelectJob = useCallback((job: Jobs) => () => {
-    setSelectedJob(job);
-  }, []);
-
-  console.log("jobs", jobs);
+  const handleSelectJob = useCallback(
+    (job: Jobs) => () => {
+      setSelectedJob(job);
+    },
+    []
+  );
 
   const parseResult = (result: string | object) => {
     try {
       // If result is already an object, use it directly
-      let parsed = typeof result === 'string' ? JSON.parse(result) : result;
+      let parsed = typeof result === "string" ? JSON.parse(result) : result;
 
       // Handle error case
-      if (parsed.status === 'error') {
+      if (parsed.status === "error") {
         return (
           <div className="text-red-600 bg-red-50 p-4 rounded-md">
             <p className="font-semibold">Error:</p>
@@ -28,16 +28,17 @@ export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
       }
 
       // Handle success case
-      if (parsed.status === 'success') {
-        return parsed.result || parsed.message || "Operation completed successfully";
+      if (parsed.status === "success") {
+        return (
+          parsed.result || parsed.message || "Operation completed successfully"
+        );
       }
 
       // Fallback for other cases
       return parsed.message || parsed.result || JSON.stringify(parsed);
-
     } catch (error) {
       // If parsing fails, return the original string or a default message
-      return typeof result === 'string' ? result : "Could not parse response";
+      return typeof result === "string" ? result : "Could not parse response";
     }
   };
 
@@ -65,15 +66,17 @@ export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
             jobs.map((job, index) => (
               <div
                 key={index}
-                className={`rounded-md p-2 cursor-pointer text-sm ${job.status === 'error' ? 'text-red-500' : 'text-gray-700'
-                  } ${selectedJob?.job_id === job.job_id
-                    ? 'bg-gray-100'
-                    : 'hover:bg-gray-100'
-                  }`}
+                className={`rounded-md p-2 cursor-pointer text-sm ${
+                  job.status === "error" ? "text-red-500" : "text-gray-700"
+                } ${
+                  selectedJob?.job_id === job.job_id
+                    ? "bg-gray-100"
+                    : "hover:bg-gray-100"
+                }`}
                 onClick={handleSelectJob(job)}
               >
                 {job.topic}
-                {job.status === 'error' && (
+                {job.status === "error" && (
                   <span className="ml-2 text-xs text-red-400">(Erreur)</span>
                 )}
               </div>
@@ -90,7 +93,7 @@ export const ModalHistory = ({ jobs }: { jobs: Jobs[] }) => {
           <div>
             <h1 className="text-lg font-bold text-gray-800 mb-2">
               {selectedJob.topic}
-              {selectedJob.status === 'error' && (
+              {selectedJob.status === "error" && (
                 <span className="ml-2 text-sm text-red-500">(Erreur)</span>
               )}
             </h1>
