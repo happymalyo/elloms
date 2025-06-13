@@ -1,8 +1,32 @@
-import { CheckCircleIcon, ClipboardDocumentIcon, ClipboardIcon, ClockIcon, DocumentDuplicateIcon } from "@heroicons/react/16/solid"
-import { ClipboardDocumentCheckIcon, PencilIcon } from "@heroicons/react/24/outline"
-import { FaCopy } from "react-icons/fa";
+import { CheckCircleIcon, ClockIcon } from "@heroicons/react/16/solid";
+import { PencilIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { FaCopy, FaSave, FaTimes } from "react-icons/fa";
+import ReactMarkdown from 'react-markdown';
 
-export const GeneratedPost = () => {
+interface GeneratedPostProps {
+    generatedPost: string;
+    relativeTime: string;
+    isEditing: boolean;
+    editedPost: string;
+    setEditedPost: (post: string) => void;
+    handleSaveEdit: () => void;
+    handleCancelEdit: () => void;
+    handleEditPost: () => void;
+}
+
+export const GeneratedPost = ({ generatedPost, relativeTime, isEditing, editedPost, setEditedPost, handleSaveEdit, handleCancelEdit, handleEditPost }: GeneratedPostProps) => {
+
+    const [copyFeedback, setCopyFeedback] = useState<string>("");
+    const handleCopyPost = () => {
+        navigator.clipboard.writeText(editedPost).then(() => {
+            setCopyFeedback("Copied!");
+            setTimeout(() => setCopyFeedback(""), 2000);
+        }).catch(() => {
+            setCopyFeedback("Failed to copy");
+            setTimeout(() => setCopyFeedback(""), 2000);
+        });
+    };
     return (
         <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
             <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
@@ -11,39 +35,56 @@ export const GeneratedPost = () => {
             </h3>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <p className="text-gray-700 leading-relaxed">
-                    🚀 The future of business is here! AI technology is revolutionizing how we work,
-                    automate processes, and drive innovation. From intelligent chatbots to
-                    predictive analytics, companies are leveraging AI to:
-                    <br />
-                    <br />
-                    ✅ Streamline operations
-                    <br />
-                    ✅ Enhance customer experience
-                    <br />
-                    ✅ Make data-driven decisions
-                    <br />
-                    ✅ Boost productivity by 40%
-                    <br />
-                    <br />
-                    What AI tools are transforming your industry? Share your thoughts below! 💭
-                    <br />
-                    <br />
-                    #AI #BusinessAutomation #TechTrends #Innovation #FutureOfWork
-                </p>
+                {isEditing ? (
+                    <div className="space-y-2">
+                        <textarea
+                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none"
+                            rows={5}
+                            name="editedPost"
+                            value={editedPost}
+                            onChange={(e) => setEditedPost(e.target.value)}
+                        />
+                        <div className="flex space-x-2">
+                            <button
+                                className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 flex items-center space-x-1"
+                                onClick={handleSaveEdit}
+                                aria-label="Save edited post"
+                            >
+                                <FaSave className="h-4 w-4" />
+                                <span>Save</span>
+                            </button>
+                            <button
+                                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center space-x-1"
+                                onClick={handleCancelEdit}
+                                aria-label="Cancel editing post"
+                            >
+                                <FaTimes className="h-4 w-4" />
+                                <span>Cancel</span>
+                            </button>
+                        </div>
+                    </div>
+                ) : (<p className="text-gray-700 leading-relaxed">
+                    <div className="prose max-w-none whitespace-pre-wrap">
+                        <ReactMarkdown>{generatedPost}</ReactMarkdown>
+                    </div>
+                </p>)
+                }
+
             </div>
 
             <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                {relativeTime && (<div className="flex items-center space-x-2 text-sm text-gray-500">
                     <ClockIcon className="text-lg h-5 w-5" />
-                    <span>Generated 2 min ago</span>
-                </div>
+                    <span>{relativeTime}</span>
+                </div>)}
+
                 <div className="flex space-x-2">
-                    <button className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                    <button onClick={handleEditPost} className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer">
                         <PencilIcon className="h-5 w-5 text-slate-500" />
                     </button>
-                    <button className="p-2 text-gray-500 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all duration-200">
+                    <button onClick={handleCopyPost} className="flex items-center space-x-1 p-2 text-gray-500 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all duration-200 cursor-pointer">
                         <FaCopy className="h-5 w-5" />
+                        {copyFeedback && <span className="text-xs text-gray-500">{copyFeedback}</span>}
                     </button>
                 </div>
             </div>

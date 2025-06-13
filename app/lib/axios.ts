@@ -15,11 +15,10 @@ axiosInstance.interceptors.request.use(
     // const token = typeof window !== 'undefined'
     //   ? window.localStorage.getItem('token')
     //   : null;
-    const token = process.env.API_TOKEN || null;
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    
+    config.headers.Authorization = `Bearer fdsfdxx4`;
+    
     return config;
   },
   (error) => {

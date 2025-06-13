@@ -13,4 +13,14 @@ export interface Jobs {
     started_at: Date | null;      
     completed_at: Date | null;    
   }
+
+  export interface CreateJobRequest {
+    topic: string;
+    additional_context: string;
+    platform: string;
+  }
+
   export type CrewJobResult = Jobs[];
+  export type CreateJobResponse = Pick<Jobs, "job_id" | "status"> & {
+    message: string;
+  };
