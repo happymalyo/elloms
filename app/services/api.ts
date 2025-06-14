@@ -27,8 +27,8 @@ export class ApiService {
     return response.data;
   }
 
-  async update<T>(id: string | number, data: Partial<T>) {
-    const response = await axiosInstance.put<T>(`${this.endpoint}/${id}`, data);
+  async update<T>(id: string | number, data:  any) {
+    const response = await axiosInstance.patch<T>(`${this.endpoint}/${id}`, data);
     return response.data;
   }
 
