@@ -11,6 +11,8 @@ import type {
 } from "~/services/jobsService/types";
 import { formatDistanceToNow } from "date-fns";
 import { GeneratedPost } from "./GeneratedPost";
+import { useImageStore } from "~/store/imageStore";
+import { LoadingSVG } from "~/components/Common/LoadingSVG";
 
 const jobService = new JobService();
 const INITIAL_JOB: CreateJobRequest = {
@@ -21,17 +23,17 @@ const INITIAL_JOB: CreateJobRequest = {
 
 export const ContentGenerator = () => {
   const [jobStatus, setJobStatus] = useState<string>("");
-  const [imageStatus, setImageStatus] = useState<string>("");
   const [generatedPost, setGeneratedPost] = useState<string>("");
   const [editedPost, setEditedPost] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [editError, setEditError] = useState<string>("");
-  const [imageError, setImageError] = useState<string>("");
   const [generatedAt, setGeneratedAt] = useState<Date | null>(null);
   const queryClient = useQueryClient();
   const [job, setJob] = useState<CreateJobRequest>(INITIAL_JOB);
   const [currentJobId, setCurrentJobId] = useState<string>("");
+  const setImageStatus = useImageStore((state) => state.setImageStatus);
+  const setImages = useImageStore((state) => state.setImages);
 
   // Relative time display using date-fns
   const [relativeTime, setRelativeTime] = useState<string>("");
@@ -61,13 +63,27 @@ export const ContentGenerator = () => {
         return;
       }
       try {
-        const oneJob = await jobService.getById<Jobs>(jobId);
-        setImageStatus(oneJob.image_status);
-        if (oneJob.image_status === "completed" && oneJob.images) {
+        const imgJob = await jobService.getById<Jobs>(jobId);
+        setImageStatus(imgJob.image_status);
+        console.log(imgJob);
+        if (imgJob.image_status === "completed") {
+          let images: string[] = [];
+          if (imgJob.images) {
+            try {
+              images = JSON.parse(imgJob.images);
+            } catch {
+              images = [];
+            }
+          }
+          setImages(images);
+          setImageStatus("completed");
           clearInterval(interval);
-        } else if (oneJob.image_status === "error") {
+        } else if (imgJob.image_status === "error") {
           clearInterval(interval);
-          setImageError(oneJob.error_message || "Image generation failed");
+          useImageStore.setState({
+            imageStatus: "error",
+            images: [],
+          });
         }
       } catch (err) {
         clearInterval(interval);
@@ -224,7 +240,7 @@ export const ContentGenerator = () => {
                 <option value="">Select a platform</option>
                 <option value="LinkedIn">LinkedIn</option>
                 <option value="Facebook">Facebook</option>
-                <option value="Twitter">Twitter</option>
+                <option value="Twitter">X</option>
                 <option value="Instagram">Instagram</option>
               </select>
             </div>
@@ -263,32 +279,9 @@ export const ContentGenerator = () => {
 
           {(jobStatus === "started" || jobStatus === "running") && (
             <div className="text-sm text-gray-600 flex items-center space-x-2">
-              <svg
-                className="animate-spin h-5 w-5 text-primary-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
+              <LoadingSVG />
               <span>
                 Status: {jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)}
-              </span>
-              <span>
-                Image Status:{" "}
-                {imageStatus.charAt(0).toUpperCase() + imageStatus.slice(1)}
               </span>
             </div>
           )}
@@ -299,22 +292,9 @@ export const ContentGenerator = () => {
             </div>
           )}
 
-          {imageStatus && !["started", "running"].includes(jobStatus) && (
-            <div className="text-sm text-gray-600">
-              Image Status:{" "}
-              {jobStatus.charAt(0).toUpperCase() + jobStatus.slice(1)}
-            </div>
-          )}
-
           {error && (
             <div className="text-red-600 bg-red-50 p-4 rounded-md">
               <p>{error}</p>
-            </div>
-          )}
-
-          {imageError && (
-            <div className="text-red-600 bg-red-50 p-4 rounded-md">
-              <p>{imageError}</p>
             </div>
           )}
         </div>
